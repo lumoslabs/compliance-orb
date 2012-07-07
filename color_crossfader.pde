@@ -1,18 +1,5 @@
-#define clockpin 13 // CI
-#define enablepin 10 // EI
-#define latchpin 9 // LI
-#define datapin 11 // DI
- 
-#define NumLEDs 1
- 
-int LEDChannels[NumLEDs][3] = {0};
-int SB_CommandMode;
-int SB_RedCommand;
-int SB_GreenCommand;
-int SB_BlueCommand;
-
-/* ------------------------------------------------------------------------------------------------------ */
-
+// Put all logic related to fading from color to color in here
+#define FADE_SPEED SLOW_ASS_FADE
 #define COLOR_STEPS 1023
 #define SLOW_ASS_FADE (COLOR_STEPS*4)
 #define MEDIUM_FADE (COLOR_STEPS*2)
@@ -46,60 +33,8 @@ float bluVal = black[2];
 float numTransitions = float(FADE_SPEED);
 int wait = 1;      // 1ms internal crossFade delay; increase for slower fades
 int hold = 0;       // Optional hold when a color is complete, before the next crossFade
-int DEBUG = 1;      // DEBUG counter; if set to 1, will write values back via serial
-int loopCount = 240; // How often should DEBUG report?
 int repeat = 3;     // How many times should we loop before stopping? (0 for no stop)
 int j = 0;          // Loop counter for repeat
-
-// Initialize color variables
-float prevR = redVal;
-float prevG = grnVal;
-float prevB = bluVal;
-
-void SB_SendPacket() {
- 
-    if (SB_CommandMode == B01) {
-     SB_RedCommand = 120;
-     SB_GreenCommand = 100;
-     SB_BlueCommand = 100;
-    }
- 
-    SPDR = SB_CommandMode << 6 | SB_BlueCommand>>4;
-    while(!(SPSR & (1<<SPIF)));
-    SPDR = SB_BlueCommand<<4 | SB_RedCommand>>6;
-    while(!(SPSR & (1<<SPIF)));
-    SPDR = SB_RedCommand << 2 | SB_GreenCommand>>8;
-    while(!(SPSR & (1<<SPIF)));
-    SPDR = SB_GreenCommand;
-    while(!(SPSR & (1<<SPIF)));
- 
-}
-
-void setColor(int red, int grn, int blu) {
-  SB_CommandMode = B00; // Write to PWM control registers
-  for (int h = 0;h<NumLEDs;h++) {
-    SB_RedCommand = red;
-    SB_GreenCommand = grn;
-    SB_BlueCommand = blu;
-    SB_SendPacket();
-  }
- 
-  delayMicroseconds(15);
-  digitalWrite(latchpin,HIGH); // latch data into registers
-  delayMicroseconds(15);
-  digitalWrite(latchpin,LOW);
- 
-  SB_CommandMode = B01; // Write to current control registers
-  for (int z = 0; z < NumLEDs; z++) SB_SendPacket();
-  delayMicroseconds(15);
-  digitalWrite(latchpin,HIGH); // latch data into registers
-  delayMicroseconds(15);
-  digitalWrite(latchpin,LOW);
-  
-  prevR = red; 
-  prevG = grn; 
-  prevB = blu;
-}
  
 float calculateStep(float prevValue, float endValue) {
   Serial.print("prevValue: ");
@@ -151,32 +86,18 @@ void crossFade(int red, int grn, int blu) {
   int B = bluCorrectionFactor * float(blu);
   
 
-  float stepR = calculateStep(prevR, R);
-  float stepG = calculateStep(prevG, G); 
-  float stepB = calculateStep(prevB, B);
+  float stepR = calculateStep(redVal, R);
+  float stepG = calculateStep(grnVal, G); 
+  float stepB = calculateStep(bluVal, B);
 
   for (int i = 0; i <= numTransitions; i++) {
     redVal = calculateVal(stepR, redVal, i);
     grnVal = calculateVal(stepG, grnVal, i);
     bluVal = calculateVal(stepB, bluVal, i);
-    
+
     setColor(redVal, grnVal, bluVal);
 
     delay(wait); // Pause for 'wait' milliseconds before resuming the loop
-
-    if (DEBUG) { // If we want serial output, print it at the 
-      if (i == 0 or i % loopCount == 0) { // beginning, and every loopCount times
-        Serial.print("Loop/RGB: #");
-        Serial.print(i);
-        Serial.print(" | ");
-        Serial.print(redVal);
-        Serial.print(" / ");
-        Serial.print(grnVal);
-        Serial.print(" / ");  
-        Serial.println(bluVal); 
-      } 
-      DEBUG += 1;
-    }
   }
   
   delay(hold); // Pause for optional 'wait' milliseconds before resuming the loop

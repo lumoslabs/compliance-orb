@@ -1,8 +1,4 @@
-
-void testHandleData() {
-  char* data = "HTTP/1.1 200 OK\nX-Frame-Options: sameorigin\nX-XSS-Protection: 1; mode=block\nContent-Type: text/html;charset=utf-8\nContent-Length: 35\nConnection: keep-alive\nServer: thin 1.3.1 codename Triple Espresso\n\n%%%1023,0,0|0,1023,0|0,0,1023&&&";
-  handleData(data, 236);
-}
+// Put any misc utility functions into this file... May be worth breaking it up eventually.
 
 // Function that prints data from the server
 void handleData(char* content, int len) {
