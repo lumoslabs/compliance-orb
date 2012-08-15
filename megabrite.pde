@@ -2,6 +2,7 @@
 
 #ifndef MEGABRITE_TEST_MODE
 
+
 //#define MEGABRITE_REWIRED (suggested to put this in your private.h file rather than uncomment)
 
 #define clockpin 13 // CI
@@ -9,20 +10,22 @@
 #define latchpin 9 // LI
 #define datapin 11 // DI
 
+#define old_enablepin 6 // This pin is meaningless if it hasn't been rewired, which is a good thing if MEGABRITE_REWIRED is false
+
 #ifdef MEGABRITE_REWIRED
 //#define clockpin 13 //13 // CI
 #define enablepin 6 //10 // EI
 //#define latchpin 5 //9 // LI
 //#define datapin 11 //11 // DI
-#endif
 
 #define old_enablepin 10 // This is the pin which overlaps with the diamondback wifi enablepin. We can (in theory) use this to disable the wifi.
- 
+#endif
+
+
 int SB_CommandMode;
 int SB_RedCommand;
 int SB_GreenCommand;
 int SB_BlueCommand;
-
  
 void SB_SendPacket() {
   if (SB_CommandMode == B01) {
@@ -65,31 +68,38 @@ void setColor(int red, int grn, int blu) {
   digitalWrite(latchpin,LOW);
 }
 
-void setupMegabrite() {
-  pinMode(old_enablepin, OUTPUT);
-  pinMode(datapin, OUTPUT);
-  pinMode(latchpin, OUTPUT);
-  pinMode(enablepin, OUTPUT);
-  pinMode(clockpin, OUTPUT);
-  SPCR = (1<<SPE)|(1<<MSTR)|(0<<SPR1)|(0<<SPR0);
+bool SB_SetupPending = true;
+//lazy load the setup until its needed so we don't get weird lights on startup
+void ensureMegabriteSetup() {
+  if(SB_SetupPending) {
+    Serial.println("Setting up megabrite lazily...");
+    SB_SetupPending = false;
 
-  //This doesn't seem like a good place for this, moved it to the start of setColor
-  //digitalWrite(latchpin, LOW);
+    pinMode(old_enablepin, OUTPUT);
+    pinMode(datapin, OUTPUT);
+    pinMode(latchpin, OUTPUT);
+    pinMode(enablepin, OUTPUT);
+    pinMode(clockpin, OUTPUT);
+    SPCR = (1<<SPE)|(1<<MSTR)|(0<<SPR1)|(0<<SPR0);
+    digitalWrite(latchpin, LOW);
+    digitalWrite(enablepin, LOW);
+  }
 }
 
 int lastShift[3] = {0,0,0};
 
 void enableLight(){
+  ensureMegabriteSetup();
   digitalWrite(old_enablepin, HIGH);
   digitalWrite(enablepin, LOW);
-  delayMicroseconds(15);
+  //delayMicroseconds(15);
   //TODO: delegate to crossfader here to resume any paused transitions
 }
 
 void disableLight(){
   digitalWrite(enablepin, HIGH);
   digitalWrite(old_enablepin, LOW);
-  delayMicroseconds(15);
+  //delayMicroseconds(15);
 }
 
 #else
@@ -103,8 +113,6 @@ void setColor(int red, int grn, int blu) {
   Serial.println(bluVal); 
   delayMicroseconds(60); //To mimick the original setColor function (total of 60 microseconds of delay)
 }
-
-void setupMegabrite() {}
 
 void enableLight() {}
 

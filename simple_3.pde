@@ -48,15 +48,11 @@ boolean got_data = false;
 
 void setup() {
   Serial.begin(57600);
-  Serial.println("Setting up modules...");
-
-  // Initialize the pins, etc for megabrite
-  setupMegabrite();
+  Serial.println("Setting up wifi...");
 
   setupWifi();
   
   Serial.println("Starting...");
-  enableLight();
 }
 
 void loop() {
