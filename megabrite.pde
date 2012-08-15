@@ -1,16 +1,20 @@
 // Put all hardware-related megabrite logic in here
 
-#ifndef WIFI_TEST_MODE
+#ifndef MEGABRITE_TEST_MODE
+
+//#define MEGABRITE_REWIRED (suggested to put this in your private.h file rather than uncomment)
 
 #define clockpin 13 // CI
-//#define enablepin 10 // EI
+#define enablepin 10 // EI
 #define latchpin 9 // LI
 #define datapin 11 // DI
 
+#ifdef MEGABRITE_REWIRED
 //#define clockpin 13 //13 // CI
 #define enablepin 6 //10 // EI
 //#define latchpin 5 //9 // LI
 //#define datapin 11 //11 // DI
+#endif
 
 #define old_enablepin 10 // This is the pin which overlaps with the diamondback wifi enablepin. We can (in theory) use this to disable the wifi.
  
