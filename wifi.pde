@@ -69,8 +69,12 @@ void fetchData() {
 void setupWifi() {}
 
 void fetchData() {
-  char* data = "HTTP/1.1 200 OK\nX-Frame-Options: sameorigin\nX-XSS-Protection: 1; mode=block\nContent-Type: text/html;charset=utf-8\nContent-Length: 35\nConnection: keep-alive\nServer: thin 1.3.1 codename Triple Espresso\n\n%%%1023,0,0|0,1023,0|0,0,1023&&&";
-  handleData(data, 236);
+  fakeFetchData();
 }
 
 #endif
+
+void fakeFetchData() {
+  char* data = "HTTP/1.1 200 OK\nX-Frame-Options: sameorigin\nX-XSS-Protection: 1; mode=block\nContent-Type: text/html;charset=utf-8\nContent-Length: 35\nConnection: keep-alive\nServer: thin 1.3.1 codename Triple Espresso\n\n%%%1023,0,0|0,1023,0|0,0,1023&&&";
+  handleData(data, 236);
+}
