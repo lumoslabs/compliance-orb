@@ -66,10 +66,10 @@ void loop() {
     fetchData();
 
     updateTime +=REQUEST_DELAY_TIME;
-    enableLight();
   }
   
   while(shifted_rgb = popRgb()){
+    enableLight();
     i = -1;
     Serial.println("Shifting light...");
     while(++i < 3) Serial.println(shifted_rgb[i]);

@@ -81,6 +81,7 @@ void ensureMegabriteSetup() {
     pinMode(enablepin, OUTPUT);
     pinMode(clockpin, OUTPUT);
     SPCR = (1<<SPE)|(1<<MSTR)|(0<<SPR1)|(0<<SPR0);
+
     digitalWrite(latchpin, LOW);
     digitalWrite(enablepin, LOW);
   }
@@ -88,18 +89,26 @@ void ensureMegabriteSetup() {
 
 int lastShift[3] = {0,0,0};
 
+bool lightEnabled = false;
+
 void enableLight(){
-  ensureMegabriteSetup();
-  digitalWrite(old_enablepin, HIGH);
-  digitalWrite(enablepin, LOW);
-  //delayMicroseconds(15);
-  //TODO: delegate to crossfader here to resume any paused transitions
+  if (!lightEnabled) {
+    lightEnabled = true;
+    ensureMegabriteSetup();
+    
+    digitalWrite(old_enablepin, HIGH);
+    digitalWrite(enablepin, LOW);
+    
+    //TODO: delegate to crossfader here to resume any paused transitions
+  }
 }
 
 void disableLight(){
-  digitalWrite(enablepin, HIGH);
-  digitalWrite(old_enablepin, LOW);
-  //delayMicroseconds(15);
+  if (lightEnabled) {
+    lightEnabled = false;
+    digitalWrite(enablepin, HIGH);
+    digitalWrite(old_enablepin, LOW);
+  }
 }
 
 #else
