@@ -39,28 +39,36 @@ uint8 ip[] = TARGET_IP;
 GETrequest getColors(GET_COLORS_PARAMS);
 
 void setupWifi() {
-  // Initialize WiServer (we'll pass NULL for the page serving function since we don't need to serve web pages) 
-  WiServer.init(NULL);
-  
   // Enable Serial output and ask WiServer to generate log messages (optional)
-  
   WiServer.enableVerboseMode(false);
-
-  // Have the processData function called when data is returned by the server
-  getColors.setReturnFunc(handleData);
 }
 
 void fetchData() {
-  long timer = millis()+REQUEST_RETRY_DURATION;
+  long timer;
 
   Serial.println("starting fetchData");
   got_data = false;
-  while(!got_data && millis() < timer) {
+
+  WiServer.init(NULL);
+  getColors.init(GET_COLORS_PARAMS);
+  getColors.setReturnFunc(handleData);
+
+  while(!got_data) {
+    timer = millis()+REQUEST_RETRY_DURATION;
+    request_finished = false;
+    Serial.println("sending request");
+
     getColors.submit();
-    
-    WiServer.server_task();
-    delay(10);
+    Serial.println("request queued");
+    while(!request_finished){
+      if(millis() > timer){
+        Serial.println("Timeout!");
+        return;
+      }
+      WiServer.server_task();
+    }
   }
+  if(got_data) Serial.println("got it!");
 }
 
 #else ////START TEST CODE

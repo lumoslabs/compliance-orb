@@ -12,8 +12,9 @@ void handleData(char* content, int len) {
   int data_length = 0;
   char* data_start;
   
-  //Serial.println("New request!");
-  //Serial.println(len);
+  Serial.println("New request!");
+  Serial.println(len);
+  request_finished = true;
   while (len-- > 0) {
     got_data = true;
     curr_char = *(++content);

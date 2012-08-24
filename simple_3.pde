@@ -40,6 +40,7 @@ long updateTime = 0;
 long lightShiftTime = 0;
 
 boolean got_data = false;
+boolean request_finished = false;
 ////END GLOBAL VARIABLES
 
 
