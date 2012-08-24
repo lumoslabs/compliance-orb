@@ -6,7 +6,9 @@
 
 // Server Config
 #define DEST_PATH                  "/history"
-#define TARGET_IP                  {192,168,1,163}
+#define TARGET_IP                  {192,168,1,163} //of the server
+#define LOCAL_IP                   {192,168,1,196} //of the wishield
+#define GATEWAY_IP                 {192,168,1,1}   //of the router
 #define TARGET_PORT                8887
 
 // Delay and Timing

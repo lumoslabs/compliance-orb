@@ -7,8 +7,8 @@
 #define WIRELESS_MODE_INFRA        1
 #define WIRELESS_MODE_ADHOC        2
 
-unsigned char local_ip[] = {192,168,1,196}; // IP address of WiShield
-unsigned char gateway_ip[] = {192,168,1,1}; // router or gateway IP address
+unsigned char local_ip[] = LOCAL_IP; // IP address of WiShield
+unsigned char gateway_ip[] = GATEWAY_IP; // router or gateway IP address
 unsigned char subnet_mask[] = {255,255,255,0};  // subnet mask for the local network
 const prog_char ssid[] PROGMEM = AP_ESSID;    // max 32 bytes
 
@@ -56,7 +56,6 @@ void fetchData() {
   Serial.println("starting fetchData");
   got_data = false;
   while(!got_data && millis() < timer) {
-    Serial.println("trying");
     getColors.submit();
     
     WiServer.server_task();
