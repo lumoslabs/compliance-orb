@@ -16,6 +16,7 @@
 #define REQUEST_RETRY_DURATION     30000 //ms
 #define LOOP_DELAY_TIME            4 //seconds
 #define LIGHT_SHIFT_DELAY_TIME     5000 //ms
+#define LIGHT_LOOP_DURATION        60000 //ms
 
 // Size of Ring Buffer
 #define RGB_BUFFER_SIZE 30
@@ -61,6 +62,7 @@ void setup() {
 void loop() {
   int* shifted_rgb;
   int i;
+  long lightLoopTimer;
   
   // Check if it's time to get an update
   if (millis() >= updateTime) {
@@ -71,11 +73,16 @@ void loop() {
     updateTime +=REQUEST_DELAY_TIME;
   }
   
-  while(shifted_rgb = popRgb()){
-    enableLight();
-    i = -1;
-    Serial.println("Shifting light...");
-    while(++i < 3) Serial.println(shifted_rgb[i]);
-    crossFade(shifted_rgb[0], shifted_rgb[1], shifted_rgb[2]);
+  if(!isBufferEmpty()){
+    lightLoopTimer = millis()+LIGHT_LOOP_DURATION;
+
+    while(shifted_rgb = popRgb()){
+      enableLight();
+      i = -1;
+      Serial.println("Shifting light...");
+      while(++i < 3) Serial.println(shifted_rgb[i]);
+      crossFade(shifted_rgb[0], shifted_rgb[1], shifted_rgb[2]);
+      if(lightLoopTimer > millis()) pushRgb(shifted_rgb);
+    }
   }
 }
